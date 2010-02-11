@@ -21,7 +21,7 @@ The most powerful features of this plugin regards its competitors are the follow
 
 == Installation ==
 
-1. Upload `wp-super-cache` directory to the `/wp-content/plugins/` directory
+1. Upload `wp-super-popup` directory to the `/wp-content/plugins/` directory
 1. Activate the plugin through the 'Plugins' menu in WordPress
 1. Go to the 'Super Popup' admin page in order to edit and enable your popup
 
