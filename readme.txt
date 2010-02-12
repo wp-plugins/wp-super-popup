@@ -2,7 +2,7 @@
 Tags: popup, modal popup, window
 Requires at least: 2.7
 Tested up to: 2.9
-Stable tag: 0.1
+Stable tag: 0.2
 
 Creates unblockable, dynamic and fully configurable popups for your blog: it is useful for creating subscription popups which can strongly increase your email followers.
 
