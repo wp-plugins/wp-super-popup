@@ -368,7 +368,7 @@ function smp_settings_page() {
         		<input type="radio" <?php echo($options['show_mode']==2?'checked':'')?> name="smp-options[show_mode]" value="2"> For the first <input size="5" type="text" name="smp-options[cookie_num_visits]" value="<?php echo $options['cookie_num_visits']; ?>" /> visits
         	</td>
         </tr>                 
-    </table>
+    </table> 
     
 		<h2>Popup Content</h2>	
 
