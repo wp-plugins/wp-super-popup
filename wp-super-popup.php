@@ -4,7 +4,7 @@ Plugin Name: WP Super Popup
 Plugin Script: wp-super-popup.php
 Plugin URI: http://www.n2h.it/wp-super-popup
 Description: Creates unblockable, dynamic and fully configurable popups for your blog: it is useful for creating subscription popups which can strongly increase your email followers. It works also if WP Super Cache is enabled!
-Version: 0.1
+Version: 0.2
 License: GPL
 Author: Davide Pozza
 Author URI: http://www.n2h.it
@@ -29,9 +29,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 Online: http://www.gnu.org/licenses/gpl.txt
 */
-//delete_option('smp-options');
 
-add_option('smp-options',array(
+$smp_default_options = array(
 'exclusion_list'=>'',
 'popup_url' => '',
 'cookie_duration'=>'30',
@@ -43,8 +42,11 @@ add_option('smp-options',array(
 'popup_speed'=>'700',
 'show_mode'=>'1',
 'load_mode'=>'1',
-'messages'=>''
-));
+'messages'=>'',
+'enabled' => 1
+);
+
+add_option('smp-options',$smp_default_options);
 
 $smp_plugin_url_base = WP_PLUGIN_URL . '/wp-super-popup';
 $smp_inline_popup_url = WP_PLUGIN_URL . '/../uploads/smp_popup.html';
@@ -70,7 +72,12 @@ add_action( 'init', 'smp_init' );
 
 
 function smp_init(){
-	global $smp_inline_popup_temp_file;
+	global $smp_inline_popup_temp_file, $smp_default_options;
+	$options = get_option('smp-options');
+	if (count($options) != count($smp_default_options)){
+		$merged_options = array_merge($smp_default_options, $options);
+		update_option('smp-options', $merged_options);
+	}
 	if (isset($_POST['smp_content'])){
 		if(current_user_can("administrator")) {
 			$content = stripslashes($_POST['smp_content']);
@@ -92,6 +99,7 @@ function smp_init(){
 
 function smp_is_page_allowed(){
 	$options = get_option('smp-options');
+	if ($options['enabled']==0) return false;
 	$paths = explode("\n", $options['exclusion_list']);
 	foreach($paths as $path){
 		$path = trim($path);
@@ -300,6 +308,13 @@ function smp_options_validate($options) {
 		$messages .= "The field 'Popup Speed' requires a numeric value.<br/>";
 		$options['popup_speed'] = $prev_options['popup_speed'];
 	}
+	if (!preg_match('/[0-9\.]/',$options['popup_opacity'])){
+		$messages .= "The field 'Popup Opacity' requires a value between 0 and 1 (using a '.' as separator)<br/>";
+		$options['popup_opacity'] = $prev_options['popup_opacity'];
+	}
+	if (!isset($options['enabled'])){
+		$options['enabled'] = 0;
+	}
 	if (strlen($messages) > 0){
 		$options['messages'] = $messages;
 	}
@@ -340,6 +355,9 @@ function smp_settings_page() {
 
 		<h2>Base Settings</h2>
     <table class="form-table">
+        <tr valign="top"><th scope="row"><strong>Status:</strong></th>
+           <td><input type="checkbox" <?php echo($options['enabled']==1?'checked':'')?> name="smp-options[enabled]" value="1"> Popup enabled </td>
+        </tr>
         <tr valign="top"><th scope="row"><strong>Exclusion list</strong>: type the paths (one for each line) of the pages which will never display the popup.</th>
            <td><textarea name="smp-options[exclusion_list]" rows=10 cols=40><?php echo ($options['exclusion_list'])?></textarea> </td>
         </tr>
@@ -356,18 +374,18 @@ function smp_settings_page() {
 
     <table class="form-table">
         <tr valign="top">
-        	<th scope="row"><strong>Content load mode:</strong><br/><br/>
-        		</th>
-          <td>
-          	<input type="radio" <?php echo($options['load_mode']==1?'checked':'')?> name="smp-options[load_mode]" value="1"> Embed the following URL inside the popup:<br/><br/>
-          	<input size="70" type="text" name="smp-options[popup_url]" value="<?php echo $options['popup_url']; ?>" />
-						<br/><br/>
-          	<input type="radio" <?php echo($options['load_mode']==2?'checked':'')?> name="smp-options[load_mode]" value="2"> Embed the following inline content:<br/><br/>
-          	<textarea id="popup_content" rows=10 cols=60 name="smp-options[popup_content]"><?php echo $options['popup_content']; ?></textarea>
-          	<br/><a href="javascript:smp_toggleEditor('popup_content');">Add/Remove editor</a>
-						<p class="submit">
+        	<th scope="row"><strong>Content load mode:</strong><br/>
+        		<p class="submit">
 					  <input type="button" rel="preview" class="button-primary" value="<?php _e('Live Preview') ?>" />
 					  </p>
+        		</th>
+          <td>
+          	<input type="radio" <?php echo($options['load_mode']==1?'checked':'')?> name="smp-options[load_mode]" value="1"> Embed the following URL inside the popup:<br/>
+          	<input size="70" type="text" name="smp-options[popup_url]" value="<?php echo $options['popup_url']; ?>" />
+					  <br/><br/>
+          	<input type="radio" <?php echo($options['load_mode']==2?'checked':'')?> name="smp-options[load_mode]" value="2"> Embed the following inline content:<br/>
+          	<textarea id="popup_content" rows=10 cols=60 name="smp-options[popup_content]"><?php echo $options['popup_content']; ?></textarea>
+          	<br/><a href="javascript:smp_toggleEditor('popup_content');">Add/Remove editor</a>
 
 
           </td>

@@ -27,5 +27,8 @@ The most powerful features of this plugin regards its competitors are the follow
 
 == Changelog ==
 
+= 0.2 =
+* Added "Popup enabled" option
+
 = 0.1 =
 * First release
