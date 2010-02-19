@@ -2,7 +2,7 @@
 Tags: popup, modal popup, window
 Requires at least: 2.7
 Tested up to: 2.9
-Stable tag: 0.2
+Stable tag: 0.3
 
 Creates unblockable, dynamic and fully configurable popups for your blog: it is useful for creating subscription popups which can strongly increase your email followers.
 
@@ -26,6 +26,9 @@ The most powerful features of this plugin regards its competitors are the follow
 1. Go to the 'Super Popup' admin page in order to edit and enable your popup
 
 == Changelog ==
+
+= 0.3 =
+Added plain html text box input field
 
 = 0.2 =
 * Added "Popup enabled" option

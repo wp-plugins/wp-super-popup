@@ -4,7 +4,7 @@ Plugin Name: WP Super Popup
 Plugin Script: wp-super-popup.php
 Plugin URI: http://www.n2h.it/wp-super-popup
 Description: Creates unblockable, dynamic and fully configurable popups for your blog: it is useful for creating subscription popups which can strongly increase your email followers. It works also if WP Super Cache is enabled!
-Version: 0.2
+Version: 0.3
 License: GPL
 Author: Davide Pozza
 Author URI: http://www.n2h.it
@@ -40,6 +40,8 @@ $smp_default_options = array(
 'popup_opacity'=>'0.5',
 'popup_delay'=>'2000',
 'popup_speed'=>'700',
+'popup_content' => '',
+'popup_plain_content' => '',
 'show_mode'=>'1',
 'load_mode'=>'1',
 'messages'=>'',
@@ -49,10 +51,16 @@ $smp_default_options = array(
 add_option('smp-options',$smp_default_options);
 
 $smp_plugin_url_base = WP_PLUGIN_URL . '/wp-super-popup';
+
 $smp_inline_popup_url = WP_PLUGIN_URL . '/../uploads/smp_popup.html';
 $smp_inline_popup_temp_url = WP_PLUGIN_URL . '/../uploads/smp_popup_temp.html';
 $smp_inline_popup_file = dirname(__FILE__) . '/../../uploads/smp_popup.html';
 $smp_inline_popup_temp_file = dirname(__FILE__) . '/../../uploads/smp_popup_temp.html';
+
+$smp_plain_popup_url = WP_PLUGIN_URL . '/../uploads/smp_plain_popup.html';
+$smp_plain_popup_temp_url = WP_PLUGIN_URL . '/../uploads/smp_plain_popup_temp.html';
+$smp_plain_popup_file = dirname(__FILE__) . '/../../uploads/smp_plain_popup.html';
+$smp_plain_popup_temp_file = dirname(__FILE__) . '/../../uploads/smp_plain_popup_temp.html';
 
 	
 /*
@@ -72,7 +80,7 @@ add_action( 'init', 'smp_init' );
 
 
 function smp_init(){
-	global $smp_inline_popup_temp_file, $smp_default_options;
+	global $smp_inline_popup_temp_file, $smp_plain_popup_temp_file, $smp_default_options;
 	$options = get_option('smp-options');
 	if (count($options) != count($smp_default_options)){
 		$merged_options = array_merge($smp_default_options, $options);
@@ -84,6 +92,15 @@ function smp_init(){
 			
 			if (smp_is_file_writable($smp_inline_popup_temp_file))
 				smp_write_file_popup($smp_inline_popup_temp_file, $content);
+		}
+		die();
+	}
+	if (isset($_POST['smp_plain_content'])){
+		if(current_user_can("administrator")) {
+			$content = stripslashes($_POST['smp_plain_content']);
+			
+			if (smp_is_file_writable($smp_plain_popup_temp_file))
+				smp_write_file_popup($smp_plain_popup_temp_file, $content);
 		}
 		die();
 	}
@@ -118,7 +135,7 @@ function smp_is_inline(){
 */
 
 function smp_add_head_code(){
-	global $smp_plugin_url_base, $smp_inline_popup_url;
+	global $smp_plugin_url_base, $smp_inline_popup_url,$smp_plain_popup_url;
 	$options = get_option('smp-options');
 ?>
 <script type="text/javascript">
@@ -131,8 +148,10 @@ function smp_add_head_code(){
 		<?php 
 		if ($options['load_mode'] == 1){
 			$smp_popup_url = $options['popup_url'];
-		} else {
+		} else if ($options['load_mode'] == 2){
 			$smp_popup_url = $smp_inline_popup_url;
+		} else {
+			$smp_popup_url = $smp_plain_popup_url;
 		}
 		?>
 		setTimeout(function() { jQuery.fn.colorbox({width:"<?php echo $options['popup_width']?>px", height:"<?php echo $options['popup_height']?>px", iframe:true, opacity:<?php echo $options['popup_opacity']?>, speed:<?php echo $options['popup_speed']?>, href:'<?php echo $smp_popup_url?>'}) }, <?php echo $options['popup_delay']?>);
@@ -227,7 +246,7 @@ function smp_add_js(){
 
 
 function smp_add_admin_head_code() {
-    global $smp_plugin_url_base,$smp_inline_popup_temp_url;
+    global $smp_plugin_url_base,$smp_inline_popup_temp_url,$smp_plain_popup_temp_url;
     $options = get_option('smp-options'); 
 
 ?>
@@ -241,15 +260,20 @@ function smp_add_admin_head_code() {
 	
 			$("input[rel='preview']").click(function(){
 				var purl;
-				if (jQuery("input[name='smp-options[load_mode]']:checked").val() == 1){
+				var checkedLoadMode = $("input[name='smp-options[load_mode]']:checked").val();
+				
+				if (checkedLoadMode == 1){
 					purl=$("input[name='smp-options[popup_url]']").val();
-				}else{
+				}else if (checkedLoadMode == 2){
 					purl='<?php echo($smp_inline_popup_temp_url)?>';
-				}
-				if ($("input[name='smp-options[load_mode]']:checked").val() == 2){
 					var content = tinyMCE.get('popup_content').getContent();				
 					$.post("/",{smp_content: content});
+				} else {
+					purl='<?php echo($smp_plain_popup_temp_url)?>';
+					var content = $("textarea[name='smp-options[popup_plain_content]']").val();
+					$.post("/",{smp_plain_content: content});
 				}
+				
 				setTimeout(
 					function() { $.fn.colorbox({
 						width:$("input[name='smp-options[popup_width]']").val()+"px", 
@@ -281,17 +305,36 @@ function smp_write_file_popup($file_name, $content){
 	fclose($handle);
 }
 
+function smp_write_file_plain_popup($file_name, $content){
+	global $smp_plugin_url_base;
+	$handle = fopen($file_name,"w");
+	fwrite($handle, $content);
+	fclose($handle);
+}
+
 function smp_options_validate($options) {
-	global $smp_inline_popup_file;
-	$options['messages'] = '';
+	global $smp_inline_popup_file,$smp_plain_popup_file;
 	$prev_options = get_option('smp-options'); 
-	$file_name = 	$smp_inline_popup_file;
+
+	$options['messages'] = '';	
 	$messages = '';
-	if (smp_is_file_writable($file_name)){
-		smp_write_file_popup($file_name, $options['popup_content']);
-	}else if ($options['load_mode']==2){
-		$messages .= "Unable to save inline content. Please make sure that the '$smp_uploads_dir' is writable and try again.<br/>";
+	
+	if ($options['load_mode']==2){
+		if (smp_is_file_writable($smp_inline_popup_file)){
+			smp_write_file_popup($smp_inline_popup_file, $options['popup_content']);
+		}else {
+			$messages .= "Unable to save inline content. Please make sure that the '$smp_uploads_dir' is writable and try again.<br/>";
+		}
 	}
+
+	if ($options['load_mode']==3){
+		if (smp_is_file_writable($smp_plain_popup_file)){
+			smp_write_file_plain_popup($smp_plain_popup_file, $options['popup_plain_content']);
+		}else {
+			$messages .= "Unable to save inline content. Please make sure that the '$smp_uploads_dir' is writable and try again.<br/>";
+		}
+	}
+
 	if (!is_numeric($options['popup_height'])){
 		$messages .= "The field 'Popup Height' requires a numeric value.<br/>";
 		$options['popup_height'] = $prev_options['popup_height'];
@@ -374,18 +417,22 @@ function smp_settings_page() {
 
     <table class="form-table">
         <tr valign="top">
-        	<th scope="row"><strong>Content load mode:</strong><br/>
+        	<th scope="row"><strong>Popup content load mode:</strong><br/>
         		<p class="submit">
 					  <input type="button" rel="preview" class="button-primary" value="<?php _e('Live Preview') ?>" />
 					  </p>
         		</th>
           <td>
-          	<input type="radio" <?php echo($options['load_mode']==1?'checked':'')?> name="smp-options[load_mode]" value="1"> Embed the following URL inside the popup:<br/>
+          	<input type="radio" <?php echo($options['load_mode']==1?'checked':'')?> name="smp-options[load_mode]" value="1"> Embed the following URL content:<br/>
           	<input size="70" type="text" name="smp-options[popup_url]" value="<?php echo $options['popup_url']; ?>" />
 					  <br/><br/>
-          	<input type="radio" <?php echo($options['load_mode']==2?'checked':'')?> name="smp-options[load_mode]" value="2"> Embed the following inline content:<br/>
-          	<textarea id="popup_content" rows=10 cols=60 name="smp-options[popup_content]"><?php echo $options['popup_content']; ?></textarea>
+          	<input type="radio" <?php echo($options['load_mode']==2?'checked':'')?> name="smp-options[load_mode]" value="2"> Embed the following WYSIWYG content:<br/>
+          	<textarea id="popup_content" rows=15 cols=60 name="smp-options[popup_content]"><?php echo $options['popup_content']; ?></textarea>
           	<br/><a href="javascript:smp_toggleEditor('popup_content');">Add/Remove editor</a>
+					  <br/><br/>
+          	<input type="radio" <?php echo($options['load_mode']==3?'checked':'')?> name="smp-options[load_mode]" value="3"> Embed the following plain HTML content:<br/>
+          	<textarea id="popup_plain_content" rows=15 cols=60 name="smp-options[popup_plain_content]"><?php echo $options['popup_plain_content']; ?></textarea>
+          	
 
 
           </td>
@@ -427,20 +474,7 @@ function smp_settings_page() {
 </form>
 </div>
 <?php } 
-/*
-function smp_add_inline(){
-	$options = get_option('smp-options');
-	$content = $options['popup_content'];
-?>
-<div style='display:none'>
-			<div id='smp_inline'>
-			<?php echo($content);?>
-			</div>
-</div>
 
-<?php	
-}
-*/
 function smp_debug($msg) {
     $today = date("Y-m-d H:i:s ");
     $myFile = dirname(__file__) . "/debug.log";
