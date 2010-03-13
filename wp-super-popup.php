@@ -4,13 +4,11 @@ Plugin Name: WP Super Popup
 Plugin Script: wp-super-popup.php
 Plugin URI: http://www.n2h.it/wp-super-popup
 Description: Creates unblockable, dynamic and fully configurable popups for your blog: it is useful for creating subscription popups which can strongly increase your email followers. It works also if WP Super Cache is enabled!
-Version: 0.3
+Version: 0.4
 License: GPL
 Author: Davide Pozza
 Author URI: http://www.n2h.it
 
-=== RELEASE NOTES ===
-2010-02-03 - v1.0 - first version
 */
 
 /*
@@ -45,7 +43,8 @@ $smp_default_options = array(
 'show_mode'=>'1',
 'load_mode'=>'1',
 'messages'=>'',
-'enabled' => 1
+'enabled' => 1,
+'cookie_id' => 'mycookie'
 );
 
 add_option('smp-options',$smp_default_options);
@@ -83,7 +82,7 @@ function smp_init(){
 	global $smp_inline_popup_temp_file, $smp_plain_popup_temp_file, $smp_default_options;
 	$options = get_option('smp-options');
 	if (count($options) != count($smp_default_options)){
-		$merged_options = array_merge($smp_default_options, $options);
+		$merged_options = array_merge((array)$smp_default_options, (array)$options);
 		update_option('smp-options', $merged_options);
 	}
 	if (isset($_POST['smp_content'])){
@@ -140,8 +139,8 @@ function smp_add_head_code(){
 ?>
 <script type="text/javascript">
 	jQuery.noConflict();
-	var smp_cookie_name_a = 'smp_cookie_a';//1
-	var smp_cookie_name_b = 'smp_cookie_b';//2
+	var smp_cookie_name_a = 'smp_<?php echo $options['cookie_id']?>_a';//1
+	var smp_cookie_name_b = 'smp_<?php echo $options['cookie_id']?>_b';//2
 	var smp_cookie_num_visits = <?php echo $options['cookie_num_visits']?>;
 	var smp_show_mode = <?php echo $options['show_mode']?>;
 	function smp_show_popup(){
@@ -254,9 +253,15 @@ function smp_add_admin_head_code() {
 <script type="text/javascript">
 	jQuery.noConflict();
 	jQuery(document).ready(function($) {
-
 		$(document).ready(function(){
 			
+			$("input[rel='reset']").click(function(){
+				if (confirm('Are you sure you want to save the options and fully reset the popup cookies already stored on all the browsers?')){
+					var id = new Date().getTime();
+					$("input[name='smp-options[cookie_id]']").val(id);
+					$('#target').submit();
+				}
+			});
 	
 			$("input[rel='preview']").click(function(){
 				var purl;
@@ -392,8 +397,9 @@ function smp_settings_page() {
   echo '<div class="error fade" style="background-color:red;"><p>' . $options['messages'] .'</p></div>';
   }?>
 
-<form method="post" action="options.php">
+<form id="target" method="post" action="options.php">
     <?php settings_fields( 'smp-settings-group' ); ?>
+    <input type="hidden" name="smp-options[cookie_id]" value="<?php echo $options['cookie_id']; ?>" /></td>
 		
 
 		<h2>Base Settings</h2>
@@ -410,7 +416,9 @@ function smp_settings_page() {
         		<input type="radio" <?php echo($options['show_mode']==1?'checked':'')?> name="smp-options[show_mode]" value="1"> Every <input size="5" type="text" name="smp-options[cookie_duration]" value="<?php echo $options['cookie_duration']; ?>" /> days<br/>
         		<input type="radio" <?php echo($options['show_mode']==2?'checked':'')?> name="smp-options[show_mode]" value="2"> For the first <input size="5" type="text" name="smp-options[cookie_num_visits]" value="<?php echo $options['cookie_num_visits']; ?>" /> visits
         	</td>
-        </tr>                 
+        </tr>          
+       
+               
     </table> 
     
 		<h2>Popup Content</h2>	
@@ -469,6 +477,7 @@ function smp_settings_page() {
 
     <p class="submit">
     <input type="submit" class="button-primary" value="<?php _e('Save Changes') ?>" />
+	  <input type="button" rel="reset" class="button-primary" value="<?php _e('Save Changes and Reset Cookies') ?>" />
     </p>
 
 </form>
