@@ -4,7 +4,7 @@ Plugin Name: WP Super Popup
 Plugin Script: wp-super-popup.php
 Plugin URI: http://www.n2h.it/wp-super-popup
 Description: Creates unblockable, dynamic and fully configurable popups for your blog: it is useful for creating subscription popups which can strongly increase your email followers. It works also if WP Super Cache is enabled!
-Version: 0.4
+Version: 0.5
 License: GPL
 Author: Davide Pozza
 Author URI: http://www.n2h.it
@@ -44,7 +44,8 @@ $smp_default_options = array(
 'load_mode'=>'1',
 'messages'=>'',
 'enabled' => 1,
-'cookie_id' => 'mycookie'
+'cookie_id' => 'mycookie',
+'list_mode' => 1
 );
 
 add_option('smp-options',$smp_default_options);
@@ -116,14 +117,27 @@ function smp_init(){
 function smp_is_page_allowed(){
 	$options = get_option('smp-options');
 	if ($options['enabled']==0) return false;
+	$list_mode = $options['list_mode'];
 	$paths = explode("\n", $options['exclusion_list']);
-	foreach($paths as $path){
-		$path = trim($path);
-		if (strcmp($path, $_SERVER["REQUEST_URI"]) == 0){
-			return false;
-		} 
+	if ($list_mode == 1){
+		//exclusion
+		foreach($paths as $path){
+			$path = trim($path);
+			if (strcmp($path, $_SERVER["REQUEST_URI"]) == 0){
+				return false;
+			} 
+		}
+		return true;
+	} else {
+		//inclusion
+		foreach($paths as $path){
+			$path = trim($path);
+			if (strcmp($path, $_SERVER["REQUEST_URI"]) == 0){
+				return true;
+			} 
+		}
+		return false;
 	}
-	return true;
 }
 
 /*
@@ -407,8 +421,11 @@ function smp_settings_page() {
         <tr valign="top"><th scope="row"><strong>Status:</strong></th>
            <td><input type="checkbox" <?php echo($options['enabled']==1?'checked':'')?> name="smp-options[enabled]" value="1"> Popup enabled </td>
         </tr>
-        <tr valign="top"><th scope="row"><strong>Exclusion list</strong>: type the paths (one for each line) of the pages which will never display the popup.</th>
-           <td><textarea name="smp-options[exclusion_list]" rows=10 cols=40><?php echo ($options['exclusion_list'])?></textarea> </td>
+        <tr valign="top"><th scope="row"><strong>Paths inclusion/exclusion</strong>: type the paths (one for each line).</th>
+           <td>
+        		<input type="radio" <?php echo($options['list_mode']==1?'checked':'')?> name="smp-options[list_mode]" value="1"> Don't show the popup for the following paths <br/>
+        		<input type="radio" <?php echo($options['list_mode']==2?'checked':'')?> name="smp-options[list_mode]" value="2"> Show the popup only for the following paths  <br/>
+           	<textarea name="smp-options[exclusion_list]" rows=10 cols=40><?php echo ($options['exclusion_list'])?></textarea> </td>
         </tr>
         <tr valign="top">
         	<th scope="row"><strong>Show the popup:</strong></th>
