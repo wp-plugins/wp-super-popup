@@ -4,7 +4,7 @@ Plugin Name: WP Super Popup
 Plugin Script: wp-super-popup.php
 Plugin URI: http://www.n2h.it/wp-super-popup
 Description: Creates unblockable, dynamic and fully configurable popups for your blog: it is useful for creating subscription popups which can strongly increase your email followers. It works also if WP Super Cache is enabled!
-Version: 0.5
+Version: 0.6
 License: GPL
 Author: Davide Pozza
 Author URI: http://www.n2h.it
@@ -45,7 +45,7 @@ $smp_default_options = array(
 'messages'=>'',
 'enabled' => 1,
 'cookie_id' => 'mycookie',
-'list_mode' => 1
+'list_mode' => 3
 );
 
 add_option('smp-options',$smp_default_options);
@@ -128,7 +128,7 @@ function smp_is_page_allowed(){
 			} 
 		}
 		return true;
-	} else {
+	} else if($list_mode == 2){
 		//inclusion
 		foreach($paths as $path){
 			$path = trim($path);
@@ -137,6 +137,8 @@ function smp_is_page_allowed(){
 			} 
 		}
 		return false;
+	} else {
+		return true;	
 	}
 }
 
@@ -423,6 +425,7 @@ function smp_settings_page() {
         </tr>
         <tr valign="top"><th scope="row"><strong>Paths inclusion/exclusion</strong>: type the paths (one for each line).</th>
            <td>
+        		<input type="radio" <?php echo($options['list_mode']==3?'checked':'')?> name="smp-options[list_mode]" value="3"> Show the popup on all the pages  <br/>
         		<input type="radio" <?php echo($options['list_mode']==1?'checked':'')?> name="smp-options[list_mode]" value="1"> Don't show the popup for the following paths <br/>
         		<input type="radio" <?php echo($options['list_mode']==2?'checked':'')?> name="smp-options[list_mode]" value="2"> Show the popup only for the following paths  <br/>
            	<textarea name="smp-options[exclusion_list]" rows=10 cols=40><?php echo ($options['exclusion_list'])?></textarea> </td>
