@@ -4,7 +4,7 @@ Plugin Name: WP Super Popup
 Plugin Script: wp-super-popup.php
 Plugin URI: http://www.n2h.it/wp-super-popup
 Description: Creates unblockable, dynamic and fully configurable popups for your blog: it is useful for creating subscription popups which can strongly increase your email followers. It works also if WP Super Cache is enabled!
-Version: 0.6
+Version: 0.7
 License: GPL
 Author: Davide Pozza
 Author URI: http://www.n2h.it
@@ -155,65 +155,69 @@ function smp_add_head_code(){
 ?>
 <script type="text/javascript">
 	jQuery.noConflict();
-	var smp_cookie_name_a = 'smp_<?php echo $options['cookie_id']?>_a';//1
-	var smp_cookie_name_b = 'smp_<?php echo $options['cookie_id']?>_b';//2
-	var smp_cookie_num_visits = <?php echo $options['cookie_num_visits']?>;
-	var smp_show_mode = <?php echo $options['show_mode']?>;
-	function smp_show_popup(){
-		<?php 
-		if ($options['load_mode'] == 1){
-			$smp_popup_url = $options['popup_url'];
-		} else if ($options['load_mode'] == 2){
-			$smp_popup_url = $smp_inline_popup_url;
-		} else {
-			$smp_popup_url = $smp_plain_popup_url;
-		}
-		?>
-		setTimeout(function() { jQuery.fn.colorbox({width:"<?php echo $options['popup_width']?>px", height:"<?php echo $options['popup_height']?>px", iframe:true, opacity:<?php echo $options['popup_opacity']?>, speed:<?php echo $options['popup_speed']?>, href:'<?php echo $smp_popup_url?>'}) }, <?php echo $options['popup_delay']?>);
-	}
-	function smp_reset_cookies(){
-		c_value_a = jQuery.cookie(smp_cookie_name_a);
-		c_value_b = jQuery.cookie(smp_cookie_name_b);
-		if (smp_show_mode == 1 && c_value_b != null){
-			jQuery.cookie(smp_cookie_name_b, null, { path: '/', expires: 0 });
-			return true;
-		} else if (smp_show_mode == 2 && c_value_a != null){
-			jQuery.cookie(smp_cookie_name_a, null, { path: '/', expires: 0 });
-			return true;
-		} else {
-			return false;
-		}
-	}
-	jQuery(document).ready(function(){
-		var date = new Date();
-		if (!smp_reset_cookies()){
-			c_value_a = jQuery.cookie(smp_cookie_name_a);
-			c_value_b = jQuery.cookie(smp_cookie_name_b);
-			if (smp_show_mode == 1){
-				date.setTime(date.getTime() + (<?php echo $options['cookie_duration']?> * 24 * 60 * 60 * 1000));
-				c_value = c_value_a;
-				smp_cookie_name = smp_cookie_name_a;
-			} else if (smp_show_mode == 2){
-				date.setTime(date.getTime() + (100000 * 24 * 60 * 60 * 1000));
-				c_value = c_value_b;
-				smp_cookie_name = smp_cookie_name_b;
+	jQuery(document).ready(function($) {
+		$(document).ready(function(){
+			var smp_cookie_name_a = 'smp_<?php echo $options['cookie_id']?>_a';//1
+			var smp_cookie_name_b = 'smp_<?php echo $options['cookie_id']?>_b';//2
+			var smp_cookie_num_visits = <?php echo $options['cookie_num_visits']?>;
+			var smp_show_mode = <?php echo $options['show_mode']?>;
+			function smp_show_popup(){
+				<?php 
+				if ($options['load_mode'] == 1){
+					$smp_popup_url = $options['popup_url'];
+				} else if ($options['load_mode'] == 2){
+					$smp_popup_url = $smp_inline_popup_url;
+				} else {
+					$smp_popup_url = $smp_plain_popup_url;
+				}
+				?>
+				setTimeout(function() { $.fn.colorbox({width:"<?php echo $options['popup_width']?>px", height:"<?php echo $options['popup_height']?>px", iframe:true, opacity:<?php echo $options['popup_opacity']?>, speed:<?php echo $options['popup_speed']?>, href:'<?php echo $smp_popup_url?>'}) }, <?php echo $options['popup_delay']?>);
 			}
-			if (c_value == null){	
-		    jQuery.cookie(smp_cookie_name, '0', { path: '/', expires: date });
-				smp_show_popup();
-			} else {
-				//cookie exists
-				if (smp_show_mode == 2){
-					date.setTime(date.getTime() + (100000 * 24 * 60 * 60 * 1000));
-					c_value++;
-					jQuery.cookie(smp_cookie_name, c_value, { path: '/', expires: date });
-					if (c_value < smp_cookie_num_visits){
-						smp_show_popup();
-					}
+			function smp_reset_cookies(){
+				c_value_a = $.cookie(smp_cookie_name_a);
+				c_value_b = $.cookie(smp_cookie_name_b);
+				if (smp_show_mode == 1 && c_value_b != null){
+					$.cookie(smp_cookie_name_b, null, { path: '/', expires: 0 });
+					return true;
+				} else if (smp_show_mode == 2 && c_value_a != null){
+					$.cookie(smp_cookie_name_a, null, { path: '/', expires: 0 });
+					return true;
+				} else {
+					return false;
 				}
 			}
-		}
-	})
+			$(document).ready(function(){
+				var date = new Date();
+				if (!smp_reset_cookies()){
+					c_value_a = $.cookie(smp_cookie_name_a);
+					c_value_b = $.cookie(smp_cookie_name_b);
+					if (smp_show_mode == 1){
+						date.setTime(date.getTime() + (<?php echo $options['cookie_duration']?> * 24 * 60 * 60 * 1000));
+						c_value = c_value_a;
+						smp_cookie_name = smp_cookie_name_a;
+					} else if (smp_show_mode == 2){
+						date.setTime(date.getTime() + (100000 * 24 * 60 * 60 * 1000));
+						c_value = c_value_b;
+						smp_cookie_name = smp_cookie_name_b;
+					}
+					if (c_value == null){	
+				    $.cookie(smp_cookie_name, '0', { path: '/', expires: date });
+						smp_show_popup();
+					} else {
+						//cookie exists
+						if (smp_show_mode == 2){
+							date.setTime(date.getTime() + (100000 * 24 * 60 * 60 * 1000));
+							c_value++;
+							$.cookie(smp_cookie_name, c_value, { path: '/', expires: date });
+							if (c_value < smp_cookie_num_visits){
+								smp_show_popup();
+							}
+						}
+					}
+				}
+			});
+		});
+	});
 </script>
 <?php 
 }
