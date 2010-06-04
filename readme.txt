@@ -2,7 +2,7 @@
 Tags: popup, modal popup, window
 Requires at least: 2.7
 Tested up to: 2.9
-Stable tag: 0.7
+Stable tag: 0.8
 
 Creates unblockable, dynamic and fully configurable popups for your blog: it is useful for creating subscription popups which can strongly increase your email followers.
 
@@ -22,10 +22,13 @@ The most powerful features of this plugin regards its competitors are the follow
 == Installation ==
 
 1. Upload `wp-super-popup` directory to the `/wp-content/plugins/` directory
-1. Activate the plugin through the 'Plugins' menu in WordPress
-1. Go to the 'Super Popup' admin page in order to edit and enable your popup
+2. Activate the plugin through the 'Plugins' menu in WordPress
+3. Go to the 'Super Popup' admin page in order to edit and enable your popup
 
 == Changelog ==
+
+= 0.8 =
+Added new option: "Close Popup when clicking on the background"
 
 = 0.7 =
 Better jQuery support

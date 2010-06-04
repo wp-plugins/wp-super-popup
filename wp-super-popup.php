@@ -4,7 +4,7 @@ Plugin Name: WP Super Popup
 Plugin Script: wp-super-popup.php
 Plugin URI: http://www.n2h.it/wp-super-popup
 Description: Creates unblockable, dynamic and fully configurable popups for your blog: it is useful for creating subscription popups which can strongly increase your email followers. It works also if WP Super Cache is enabled!
-Version: 0.7
+Version: 0.8
 License: GPL
 Author: Davide Pozza
 Author URI: http://www.n2h.it
@@ -45,7 +45,8 @@ $smp_default_options = array(
 'messages'=>'',
 'enabled' => 1,
 'cookie_id' => 'mycookie',
-'list_mode' => 3
+'list_mode' => 3,
+'overlay_close' => 'true'
 );
 
 add_option('smp-options',$smp_default_options);
@@ -171,7 +172,16 @@ function smp_add_head_code(){
 					$smp_popup_url = $smp_plain_popup_url;
 				}
 				?>
-				setTimeout(function() { $.fn.colorbox({width:"<?php echo $options['popup_width']?>px", height:"<?php echo $options['popup_height']?>px", iframe:true, opacity:<?php echo $options['popup_opacity']?>, speed:<?php echo $options['popup_speed']?>, href:'<?php echo $smp_popup_url?>'}) }, <?php echo $options['popup_delay']?>);
+				setTimeout(function() 	{ $.fn.colorbox({
+											width:"<?php echo $options['popup_width']?>px", 
+											height:"<?php echo $options['popup_height']?>px", 
+											iframe:true, 
+											opacity:<?php echo $options['popup_opacity']?>, 
+											speed:<?php echo $options['popup_speed']?>, 
+											overlayClose:<?php echo $options['overlay_close']?>, 
+											href:'<?php echo $smp_popup_url?>'}) 
+										}, 
+							<?php echo $options['popup_delay']?>);
 			}
 			function smp_reset_cookies(){
 				c_value_a = $.cookie(smp_cookie_name_a);
@@ -299,6 +309,7 @@ function smp_add_admin_head_code() {
 					$.post("/",{smp_plain_content: content});
 				}
 				
+				var oc = $("input[name='smp-options[overlay_close]']:checked").val() == 'true';
 				setTimeout(
 					function() { $.fn.colorbox({
 						width:$("input[name='smp-options[popup_width]']").val()+"px", 
@@ -306,6 +317,7 @@ function smp_add_admin_head_code() {
 						iframe:true, 
 						opacity:$("input[name='smp-options[popup_opacity]']").val(), 
 						speed:$("input[name='smp-options[popup_speed]']").val(), 
+						overlayClose:oc,
 						href:purl
 					})},
 					$("input[name='smp-options[popup_delay]']").val()
@@ -496,7 +508,12 @@ function smp_settings_page() {
         <th scope="row"><strong>Popup Speed</strong>:</th>
         <td><input size="5" type="text" name="smp-options[popup_speed]" value="<?php echo $options['popup_speed']; ?>" />ms</td>
         </tr>         
-        
+        <tr valign="top">
+        <th scope="row"><strong>Close Popup when clicking on the background</strong>:</th>
+        <td><input type="radio" <?php echo($options['overlay_close']=='true'?'checked':'')?> name="smp-options[overlay_close]" value="true">Yes
+        	<input type="radio" <?php echo($options['overlay_close']=='false'?'checked':'')?> name="smp-options[overlay_close]" value="false">No
+        </td>
+        </tr>         
     </table>
 
     <p class="submit">
