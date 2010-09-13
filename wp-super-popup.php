@@ -47,7 +47,8 @@ $smp_default_options = array(
 'enabled' => 1,
 'cookie_id' => 'mycookie',
 'list_mode' => 3,
-'overlay_close' => 'true'
+'overlay_close' => 'true',
+'show_backlink' => 1
 );
 
 add_option('smp-options',$smp_default_options);
@@ -283,8 +284,13 @@ function smp_add_styles(){
 
 function smp_add_js_admin(){
 	global $smp_plugin_url_base;
+	$options = get_option('smp-options'); 
 	wp_enqueue_script('jquery');
-	wp_enqueue_script('smp_colorbox',	$smp_plugin_url_base . '/jquery.colorbox-min.js', array('jquery'), mt_rand() );
+	if ($options['show_backlink'] == 1){
+		wp_enqueue_script('smp_colorbox',	$smp_plugin_url_base . '/jquery.colorbox-min-back.js', array('jquery'), mt_rand() );
+	}else{
+		wp_enqueue_script('smp_colorbox',	$smp_plugin_url_base . '/jquery.colorbox-min.js', array('jquery'), mt_rand() );
+	}
 	wp_enqueue_script('smp_cookie',	$smp_plugin_url_base . '/jquery.cookie-min.js',	array('jquery'), mt_rand() );
 	wp_enqueue_script('smp_tiny_mce',	$smp_plugin_url_base . '/tiny_mce/tiny_mce.js',	array(), mt_rand() );
 	wp_enqueue_script('smp_admin',	$smp_plugin_url_base . '/admin.js', array('smp_tiny_mce'), mt_rand() );
@@ -292,8 +298,13 @@ function smp_add_js_admin(){
 
 function smp_add_js(){
 	global $smp_plugin_url_base;
+	$options = get_option('smp-options'); 
 	wp_enqueue_script('jquery');
-	wp_enqueue_script('smp_colorbox',	$smp_plugin_url_base . '/jquery.colorbox-min.js', array('jquery'), mt_rand() );
+	if ($options['show_backlink'] == 1){
+		wp_enqueue_script('smp_colorbox',	$smp_plugin_url_base . '/jquery.colorbox-min-back.js', array('jquery'), mt_rand() );
+	}else{
+		wp_enqueue_script('smp_colorbox',	$smp_plugin_url_base . '/jquery.colorbox-min.js', array('jquery'), mt_rand() );
+	}
 	wp_enqueue_script('smp_cookie',	$smp_plugin_url_base . '/jquery.cookie-min.js',	array('jquery'), mt_rand() );
 }
 
@@ -419,6 +430,9 @@ function smp_options_validate($options) {
 	if (!isset($options['enabled'])){
 		$options['enabled'] = 0;
 	}
+	if (!isset($options['show_backlink'])){
+		$options['show_backlink'] = 0;
+	}
 	if (strlen($messages) > 0){
 		$options['messages'] = $messages;
 	}
@@ -478,6 +492,9 @@ function smp_settings_page() {
     <table class="form-table">
         <tr valign="top"><th scope="row"><strong>Status:</strong></th>
            <td><input type="checkbox" <?php echo($options['enabled']==1?'checked':'')?> name="smp-options[enabled]" value="1"> Popup enabled </td>
+        </tr>
+        <tr valign="top"><th scope="row"><strong>Backlink:</strong></th>
+           <td><input type="checkbox" <?php echo($options['show_backlink']==1?'checked':'')?> name="smp-options[show_backlink]" value="1"> Show (live preview not available)</td>
         </tr>
         <tr valign="top"><th scope="row"><strong>Paths inclusion/exclusion</strong>: type the paths (one for each line).</th>
            <td>
