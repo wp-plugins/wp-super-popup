@@ -2,12 +2,12 @@
 /*
 Plugin Name: WP Super Popup
 Plugin Script: wp-super-popup.php
-Plugin URI: http://www.n2h.it/wp-super-popup
-Description: Creates unblockable, dynamic and fully configurable popups for your blog: it is useful for creating subscription popups which can strongly increase your email followers. It works also if WP Super Cache is enabled!
-Version: 0.8
+Plugin URI: http://wppluginspro.com/wp-super-popup-pro/
+Description: Creates unblockable, dynamic and fully configurable popups for your blog. It works also if WP Super Cache or W3 Total Cache is enabled!
+Version: 0.9
 License: GPL
 Author: Davide Pozza
-Author URI: http://www.n2h.it
+Author URI: http://wppluginspro.com
 
 */
 
@@ -40,6 +40,7 @@ $smp_default_options = array(
 'popup_speed'=>'700',
 'popup_content' => '',
 'popup_plain_content' => '',
+'page_content_id' => '',
 'show_mode'=>'1',
 'load_mode'=>'1',
 'messages'=>'',
@@ -53,21 +54,19 @@ add_option('smp-options',$smp_default_options);
 
 $smp_plugin_url_base = WP_PLUGIN_URL . '/wp-super-popup';
 
-$smp_inline_popup_url = WP_PLUGIN_URL . '/../uploads/smp_popup.html';
-$smp_inline_popup_temp_url = WP_PLUGIN_URL . '/../uploads/smp_popup_temp.html';
-$smp_inline_popup_file = dirname(__FILE__) . '/../../uploads/smp_popup.html';
-$smp_inline_popup_temp_file = dirname(__FILE__) . '/../../uploads/smp_popup_temp.html';
+$smp_uploads_dir = wp_upload_dir();
+$smp_uploads_basedir = $smp_uploads_dir['basedir'];
+$smp_uploads_baseurl = $smp_uploads_dir['baseurl'];
 
-$smp_plain_popup_url = WP_PLUGIN_URL . '/../uploads/smp_plain_popup.html';
-$smp_plain_popup_temp_url = WP_PLUGIN_URL . '/../uploads/smp_plain_popup_temp.html';
-$smp_plain_popup_file = dirname(__FILE__) . '/../../uploads/smp_plain_popup.html';
-$smp_plain_popup_temp_file = dirname(__FILE__) . '/../../uploads/smp_plain_popup_temp.html';
+$smp_inline_popup_url = $smp_uploads_baseurl . '/smp_popup.html';
+$smp_inline_popup_temp_url = $smp_uploads_baseurl . '/smp_popup_temp.html';
+$smp_inline_popup_file = $smp_uploads_basedir . '/smp_popup.html';
+$smp_inline_popup_temp_file = $smp_uploads_basedir . '/smp_popup_temp.html';
 
-	
-/*
-if (smp_is_inline())
-	add_action('wp_footer', 'smp_add_inline');
-*/
+$smp_plain_popup_url = $smp_uploads_baseurl . '/smp_plain_popup.html';
+$smp_plain_popup_temp_url = $smp_uploads_baseurl . '/smp_plain_popup_temp.html';
+$smp_plain_popup_file = $smp_uploads_basedir . '/smp_plain_popup.html';
+$smp_plain_popup_temp_file = $smp_uploads_basedir . '/smp_plain_popup_temp.html';
 
 
 if ( !defined('WP_CONTENT_URL') )
@@ -105,6 +104,17 @@ function smp_init(){
 		}
 		die();
 	}
+	
+	if (isset($_GET['smp_page_content_id'])) {
+		$temp_query = new WP_Query(array('page_id' => intval($_GET['smp_page_content_id'])));
+		if ($temp_query->have_posts()) {
+			$temp_query->the_post();
+			global $more;    // Declare global $more (before the loop).
+			$more = 1; 
+			die( get_the_content());
+		}
+	}
+	
 	if (smp_is_page_allowed()){
 		add_action('wp_print_styles', 'smp_add_styles');
 		add_action('wp_print_scripts', 'smp_add_js');
@@ -113,45 +123,57 @@ function smp_init(){
 	
 }
 
-      
+function smp_callback($buffer){
+	$temp_query = new WP_Query(array('page_id' => intval($_GET['smp_page_content_id'])));
+	if ($temp_query->have_posts()) {
+		$temp_query->the_post();
+		global $more;    // Declare global $more (before the loop).
+		$more = 1; 
+		die( get_the_content());
+	}
+	
+}
+function smp_string_begins_with($string, $search)
+{
+    return (strncmp($string, $search, strlen($search)) == 0);
+}
 
 function smp_is_page_allowed(){
 	$options = get_option('smp-options');
-	if ($options['enabled']==0) return false;
-	$list_mode = $options['list_mode'];
-	$paths = explode("\n", $options['exclusion_list']);
-	if ($list_mode == 1){
-		//exclusion
-		foreach($paths as $path){
-			$path = trim($path);
-			if (strcmp($path, $_SERVER["REQUEST_URI"]) == 0){
-				return false;
-			} 
-		}
-		return true;
-	} else if($list_mode == 2){
-		//inclusion
-		foreach($paths as $path){
-			$path = trim($path);
-			if (strcmp($path, $_SERVER["REQUEST_URI"]) == 0){
-				return true;
-			} 
-		}
-		return false;
+	$res = true;
+	if ($options['enabled']==0) {
+		$res = false;
 	} else {
-		return true;	
+		$popup_list_mode = $options['list_mode'];
+		if ($popup_list_mode != 3){
+			$paths = explode("\n", $options['exclusion_list']);
+			$found = false;
+			foreach($paths as $path){
+				$path = trim($path);
+				if (strcmp($path, $_SERVER["REQUEST_URI"]) == 0){
+					if ($popup_list_mode == 1) {
+						$res = false;//exclusion
+						$found = true;
+						break;
+					}
+					else if($popup_list_mode == 2) {
+						$res = true;//inclusion
+						$found = true;
+						break;
+					}
+				}  
+			}
+			if (!$found){
+				if ($popup_list_mode == 1) $res = true;
+				else if($popup_list_mode == 2) $res = false;
+			}
+		}
 	}
+	return $res;
 }
-
-/*
-function smp_is_inline(){
-	$options = get_option('smp-options');
-	return $options['load_mode']==2;
-}
-*/
 
 function smp_add_head_code(){
-	global $smp_plugin_url_base, $smp_inline_popup_url,$smp_plain_popup_url;
+	global $smp_plugin_url_base, $smp_inline_popup_url,$smp_plain_popup_url,$smp_page_popup_url;
 	$options = get_option('smp-options');
 ?>
 <script type="text/javascript">
@@ -168,10 +190,12 @@ function smp_add_head_code(){
 					$smp_popup_url = $options['popup_url'];
 				} else if ($options['load_mode'] == 2){
 					$smp_popup_url = $smp_inline_popup_url;
-				} else {
+				} else if ($options['load_mode'] == 3) {
 					$smp_popup_url = $smp_plain_popup_url;
+				} else {
+					$smp_popup_url = '/?smp_page_content_id=' . $options['page_content_id'];
 				}
-				?>
+								?>
 				setTimeout(function() 	{ $.fn.colorbox({
 											width:"<?php echo $options['popup_width']?>px", 
 											height:"<?php echo $options['popup_height']?>px", 
@@ -242,13 +266,13 @@ ADMIN
 function smp_create_menu() {
 
 	//create new top-level menu
-	$page = add_menu_page('Super Popup', 'Super Popup', 'administrator', __FILE__, 'smp_settings_page',plugins_url('/images/icon.png', __FILE__));
+	$page = add_menu_page('Super Popup', 'Super Popup', 'administrator', __FILE__, 'smp_settings_page',plugins_url('/images/popup_icon.gif', __FILE__));
 
 	add_action('admin_print_scripts-'.$page, 'smp_add_js_admin');
 	add_action('admin_print_styles-'.$page, 'smp_add_styles');
 	//call register settings function
-	add_action( 'admin_init', 'smp_register_mysettings' );
-	add_filter('admin_head','smp_add_admin_head_code');
+	add_action( 'admin_init', 'smp_register_mysettings' ); 
+	add_filter('admin_head-'.$page, 'smp_add_admin_head_code');
 
 }
 
@@ -303,11 +327,13 @@ function smp_add_admin_head_code() {
 					purl='<?php echo($smp_inline_popup_temp_url)?>';
 					var content = tinyMCE.get('popup_content').getContent();				
 					$.post("/",{smp_content: content});
-				} else {
+				} else if (checkedLoadMode == 3) {
 					purl='<?php echo($smp_plain_popup_temp_url)?>';
 					var content = $("textarea[name='smp-options[popup_plain_content]']").val();
 					$.post("/",{smp_plain_content: content});
-				}
+				} else {
+					purl='/?smp_page_content_id=' + $("select[name='smp-options[page_content_id]']").val();
+				}				
 				
 				var oc = $("input[name='smp-options[overlay_close]']:checked").val() == 'true';
 				setTimeout(
@@ -360,18 +386,16 @@ function smp_options_validate($options) {
 		if (smp_is_file_writable($smp_inline_popup_file)){
 			smp_write_file_popup($smp_inline_popup_file, $options['popup_content']);
 		}else {
-			$messages .= "Unable to save inline content. Please make sure that the '$smp_uploads_dir' is writable and try again.<br/>";
+			$messages .= "Unable to save inline content. Please make sure that the file '$smp_inline_popup_file' is writable and try again.<br/>";
 		}
-	}
-
-	if ($options['load_mode']==3){
+	} elseif ($options['load_mode']==3){
 		if (smp_is_file_writable($smp_plain_popup_file)){
 			smp_write_file_plain_popup($smp_plain_popup_file, $options['popup_plain_content']);
 		}else {
-			$messages .= "Unable to save inline content. Please make sure that the '$smp_uploads_dir' is writable and try again.<br/>";
+			$messages .= "Unable to save inline content. Please make sure that the file '$smp_plain_popup_file' is writable and try again.<br/>";
 		}
-	}
-
+	} 
+	
 	if (!is_numeric($options['popup_height'])){
 		$messages .= "The field 'Popup Height' requires a numeric value.<br/>";
 		$options['popup_height'] = $prev_options['popup_height'];
@@ -420,10 +444,26 @@ function smp_settings_page() {
 	global $smp_plugin_url_base;
 ?>
 <div class="wrap">
-	<h2>WP Super Popup</h2>
-	<div style="padding-bottom:10px;margin-top:5px;margin-bottom:10px;border-bottom:1px solid #CCCCCC;">
-	by <strong>Davide</strong> of <strong><a target="_blank" href="http://www.n2h.it">N2H</a></strong>
-</div>
+	<h2>WP Super Popup 0.9</h2>
+	<div style="padding-bottom:10px;margin-top:5px;margin-bottom:10px;">
+	by <strong><a target="_blank" href="http://wppluginspro.com">WP Plugins Pro</a></strong>	
+	</div>
+	<div style="width: 832px;">
+	<div style="float: left; background-color: white; padding: 10px; margin-right: 15px; border: 1px solid rgb(221, 221, 221);">
+	<div style="width: 350px; height: 80px;">
+	<em>Need support and more advanced features like visitor email auto-load, sliding popups, different popup themes and much more? <br/>Check now <strong><a href="http://wppluginspro.com/wp-super-popup-pro/">WP Super Popup PRO!</a></strong></em>
+	</div>
+	</div>
+	<div style="float: left; background-color: white; padding: 10px; border: 1px solid rgb(221, 221, 221);">
+	<div style="width: 350px; height: 80px;">
+	<em> 
+	<strong>
+	<a href="http://www.n2h.it/donate_super-popup.php">Donations</a></strong> are welcome and help me to continue support and development of this <i>free</i> software! 
+	</em>	
+	</div>
+	</div>
+	</div>
+	<div style="clear:both;"></div>
   <?php      
   if (strlen($options['messages']) > 0){
   echo '<div class="error fade" style="background-color:red;"><p>' . $options['messages'] .'</p></div>';
@@ -476,7 +516,9 @@ function smp_settings_page() {
 					  <br/><br/>
           	<input type="radio" <?php echo($options['load_mode']==3?'checked':'')?> name="smp-options[load_mode]" value="3"> Embed the following plain HTML content:<br/>
           	<textarea id="popup_plain_content" rows=15 cols=60 name="smp-options[popup_plain_content]"><?php echo $options['popup_plain_content']; ?></textarea>
-          	
+						<br/><br/>
+			<input type="radio" <?php echo($options['load_mode']==4?'checked':''); ?> name="smp-options[load_mode]" value="4"> Embed the following page content (stylesheets will not be preserved):<br/>
+				<?php wp_dropdown_pages(array('show_option_none' => 'Select Page', 'selected' => $options['page_content_id'], 'name' => "smp-options[page_content_id]")); ?>          	
 
 
           </td>
