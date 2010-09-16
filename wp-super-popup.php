@@ -4,7 +4,7 @@ Plugin Name: WP Super Popup
 Plugin Script: wp-super-popup.php
 Plugin URI: http://wppluginspro.com/wp-super-popup-pro/
 Description: Creates unblockable, dynamic and fully configurable popups for your blog. It works also if WP Super Cache or W3 Total Cache is enabled!
-Version: 0.9
+Version: 0.9.1
 License: GPL
 Author: Davide Pozza
 Author URI: http://wppluginspro.com
