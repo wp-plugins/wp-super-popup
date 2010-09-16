@@ -139,9 +139,17 @@ function smp_string_begins_with($string, $search)
     return (strncmp($string, $search, strlen($search)) == 0);
 }
 
+function smp_get_full_url() {
+	$s = empty($_SERVER["HTTPS"]) ? '' : ($_SERVER["HTTPS"] == "on") ? "s" : "";
+	$protocol = substr(strtolower($_SERVER["SERVER_PROTOCOL"]), 0, strpos(strtolower($_SERVER["SERVER_PROTOCOL"]), "/")) . $s;
+	$port = ($_SERVER["SERVER_PORT"] == "80") ? "" : (":".$_SERVER["SERVER_PORT"]);
+	return $protocol . "://" . $_SERVER['SERVER_NAME'] . $port . $_SERVER['REQUEST_URI'];
+}
+      
 function smp_is_page_allowed(){
 	$options = get_option('smp-options');
 	$res = true;
+	$full_url = smp_get_full_url();
 	if ($options['enabled']==0) {
 		$res = false;
 	} else {
@@ -151,7 +159,7 @@ function smp_is_page_allowed(){
 			$found = false;
 			foreach($paths as $path){
 				$path = trim($path);
-				if (strcmp($path, $_SERVER["REQUEST_URI"]) == 0){
+				if (strcmp($path, $_SERVER["REQUEST_URI"]) == 0 || strcmp($path, $full_url) == 0){
 					if ($popup_list_mode == 1) {
 						$res = false;//exclusion
 						$found = true;
