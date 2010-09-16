@@ -31,6 +31,9 @@ Learn more by visiting this page: http://wppluginspro.com/wp-super-popup-pro/
 
 == Changelog ==
 
+= 0.9.1 =
+Added both support for URIs and URLs on exclusion/Inclusion list
+
 = 0.9 =
 Fixed page inclusion/exclusion function
 Added "embed page content" function
