@@ -2,7 +2,7 @@
 Tags: popup, modal popup, window, viral popup, super popup
 Requires at least: 2.7
 Tested up to: 3.0
-Stable tag: 0.9
+Stable tag: 0.9.1
 
 Creates unblockable, dynamic and fully configurable popups for your blog. It works also if WP Super Cache or W3 Total Cache is enabled!
 
