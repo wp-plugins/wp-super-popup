@@ -2,7 +2,7 @@
 Tags: popup, modal popup, window, viral popup, super popup
 Requires at least: 2.7
 Tested up to: 3.0
-Stable tag: 0.9.1
+Stable tag: 0.9.2
 
 Creates unblockable, dynamic and fully configurable popups for your blog. It works also if WP Super Cache or W3 Total Cache is enabled!
 
@@ -30,6 +30,9 @@ Learn more by visiting this page: http://wppluginspro.com/wp-super-popup-pro/
 3. Go to the 'Super Popup' admin page in order to edit and enable your popup
 
 == Changelog ==
+
+= 0.9.2 =
+Upgraded popup js library
 
 = 0.9.1 =
 Added both support for URIs and URLs on exclusion/Inclusion list
