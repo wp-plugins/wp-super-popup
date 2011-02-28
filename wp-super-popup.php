@@ -466,22 +466,19 @@ function smp_settings_page() {
 	global $smp_plugin_url_base;
 ?>
 <div class="wrap">
-	<h2>WP Super Popup 0.9.3</h2>
+	<h2>WP Super Popup 0.9.4</h2>
 	<div style="padding-bottom:10px;margin-top:5px;margin-bottom:10px;">
 	by <strong><a target="_blank" href="http://wppluginspro.com">WP Plugins Pro</a></strong>	
 	</div>
 	<div style="width: 832px;">
 	<div style="float: left; background-color: white; padding: 10px; margin-right: 15px; border: 1px solid rgb(221, 221, 221);">
 	<div style="width: 350px; height: 80px;">
-	<em>Need support and more advanced features like visitor email auto-load, sliding popups, different popup themes and much more? <br/>Check now <strong><a href="http://wppluginspro.com/wp-super-popup-pro/">WP Super Popup PRO!</a></strong></em>
+	<em>Need support and more advanced features like visitor email auto-load, sliding popups, <strong>exit popups</strong> and much more? <br/>Check now <strong><a href="http://wppluginspro.com/wp-super-popup-pro/">WP Super Popup PRO</a>!</strong></em>
 	</div>
 	</div>
 	<div style="float: left; background-color: white; padding: 10px; border: 1px solid rgb(221, 221, 221);">
 	<div style="width: 350px; height: 80px;">
-	<em> 
-	<strong>
-	<a href="http://www.n2h.it/donate_super-popup.php">Donations</a></strong> are welcome and help me to continue support and development of this <i>free</i> software! 
-	</em>	
+	<em>Do you want to sell digital Plimus products from your website? <br/>Check now <strong><a href="http://wppluginspro.com/plimus-integrator-for-wordpress/">Plimus Integrator for Wordpress</a>!</strong></em>
 	</div>
 	</div>
 	</div>

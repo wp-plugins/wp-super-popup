@@ -1,8 +1,8 @@
 === WP Super Popup ===
 Tags: popup, modal popup, window, viral popup, super popup
 Requires at least: 2.7
-Tested up to: 3.0
-Stable tag: 0.9.3
+Tested up to: 3.1
+Stable tag: 0.9.4
 
 Creates unblockable, dynamic and fully configurable popups for your blog. It works also if WP Super Cache or W3 Total Cache is enabled!
 
@@ -19,7 +19,7 @@ The most powerful features of this plugin regards its competitors are the follow
 
 * **Full compatibility with any caching plugin**: the cookies are handled on the client side so the plugin is not affected by issues related to a caching system like WP Super Cache or W3 Total Cache
 
-**A Pro version with full support and additional features (like visitor email auto-load, additional popup themes and much more) is also available!** 
+**A Pro version with full support and additional features (like visitor email auto-load, exit popup and much more) is also available!** 
 Learn more by visiting this page: http://wppluginspro.com/wp-super-popup-pro/
 
 
@@ -30,6 +30,9 @@ Learn more by visiting this page: http://wppluginspro.com/wp-super-popup-pro/
 3. Go to the 'Super Popup' admin page in order to edit and enable your popup
 
 == Changelog ==
+
+= 0.9.4 =
+Fixed compatibility issue with Wordpress 3.1
 
 = 0.9.3 =
 Fixed layout issue
