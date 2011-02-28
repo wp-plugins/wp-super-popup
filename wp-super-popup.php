@@ -478,7 +478,7 @@ function smp_settings_page() {
 	</div>
 	<div style="float: left; background-color: white; padding: 10px; border: 1px solid rgb(221, 221, 221);">
 	<div style="width: 350px; height: 80px;">
-	<em>Do you want to sell digital Plimus products from your website? <br/>Check now <strong><a href="http://wppluginspro.com/plimus-integrator-for-wordpress/">Plimus Integrator for Wordpress</a>!</strong></em>
+	<em>Do you want to sell Plimus digital products from your website? <br/>Check now <strong><a href="http://wppluginspro.com/plimus-integrator-for-wordpress/">Plimus Integrator for Wordpress</a>!</strong></em>
 	</div>
 	</div>
 	</div>
