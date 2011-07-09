@@ -4,7 +4,7 @@ Plugin Name: WP Super Popup
 Plugin Script: wp-super-popup.php
 Plugin URI: http://wppluginspro.com/wp-super-popup-pro/
 Description: Creates unblockable, dynamic and fully configurable popups for your blog. It works also if WP Super Cache or W3 Total Cache is enabled!
-Version: 0.9.4
+Version: 0.9.5
 License: GPL
 Author: WP Plugins Pro
 Author URI: http://wppluginspro.com
@@ -27,7 +27,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 Online: http://www.gnu.org/licenses/gpl.txt
 */
-
+require_once('mobile_ids.php');
 $smp_default_options = array(
 'exclusion_list'=>'',
 'popup_url' => '',
@@ -48,7 +48,8 @@ $smp_default_options = array(
 'cookie_id' => 'mycookie',
 'list_mode' => 3,
 'overlay_close' => 'true',
-'show_backlink' => 1
+'show_backlink' => 0,
+'show_mobile' => 0
 );
 
 add_option('smp-options',$smp_default_options);
@@ -145,9 +146,18 @@ function smp_get_full_url() {
 	$port = ($_SERVER["SERVER_PORT"] == "80") ? "" : (":".$_SERVER["SERVER_PORT"]);
 	return $protocol . "://" . $_SERVER['SERVER_NAME'] . $port . $_SERVER['REQUEST_URI'];
 }
-      
+
+function smp_is_mobile(){
+	global $smp_mob_ids;
+	$ua = $_SERVER['HTTP_USER_AGENT'];
+	return in_array($ua,$smp_mob_ids);
+}
+
 function smp_is_page_allowed(){
 	$options = get_option('smp-options');
+	if ($options['show_mobile']==0 && smp_is_mobile()) {
+		return false;
+	}
 	$res = true;
 	$full_url = smp_get_full_url();
 	if ($options['enabled']==0) {
@@ -498,8 +508,14 @@ function smp_settings_page() {
         <tr valign="top"><th scope="row"><strong>Status:</strong></th>
            <td><input type="checkbox" <?php echo($options['enabled']==1?'checked':'')?> name="smp-options[enabled]" value="1"> Popup enabled </td>
         </tr>
-        <tr valign="top"><th scope="row"><strong>Backlink:</strong></th>
-           <td><input type="checkbox" <?php echo($options['show_backlink']==1?'checked':'')?> name="smp-options[show_backlink]" value="1"> Show (live preview not available)</td>
+        <tr valign="top"><th scope="row"><strong>Enable on mobile browsers:</strong></th>
+           <td>
+           <input type="radio" <?php echo($options['show_mobile']==1?'checked':'')?> name="smp-options[show_mobile]" value="1">Yes
+           <input type="radio" <?php echo($options['show_mobile']==0?'checked':'')?> name="smp-options[show_mobile]" value="0">No
+           </td>
+        </tr>
+        <tr valign="top"><th scope="row"><strong>Backlink on popup footer:</strong></th>
+           <td><input type="checkbox" <?php echo($options['show_backlink']==1?'checked':'')?> name="smp-options[show_backlink]" value="1">Show</td>
         </tr>
         <tr valign="top"><th scope="row"><strong>Paths inclusion/exclusion</strong>: type the paths (one for each line).</th>
            <td>
