@@ -2,7 +2,7 @@
 Tags: popup, modal popup, window, viral popup, super popup
 Requires at least: 2.7
 Tested up to: 3.2
-Stable tag: 0.9.6
+Stable tag: 0.9.7
 
 Creates unblockable, dynamic and fully configurable popups for your blog. It works also if WP Super Cache or W3 Total Cache is enabled!
 
@@ -30,6 +30,9 @@ Learn more by visiting this page: http://wppluginspro.com/wp-super-popup-pro/
 3. Go to the 'Super Popup' admin page in order to edit and enable your popup
 
 == Changelog ==
+= 0.9.7 =
+Removed Show backlink" option
+Added fixed positioning on scroll
 
 = 0.9.6 =
 Renamed jquery.cookie-min.js to jquery.utils-min.js in order to prevent false positive warings by mod_security

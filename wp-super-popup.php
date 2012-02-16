@@ -4,7 +4,7 @@ Plugin Name: WP Super Popup
 Plugin Script: wp-super-popup.php
 Plugin URI: http://wppluginspro.com/wp-super-popup-pro/
 Description: Creates unblockable, dynamic and fully configurable popups for your blog. It works also if WP Super Cache or W3 Total Cache is enabled!
-Version: 0.9.6
+Version: 0.9.7
 License: GPL
 Author: WP Plugins Pro
 Author URI: http://wppluginspro.com
@@ -216,6 +216,7 @@ function smp_add_head_code(){
 				}
 								?>
 				setTimeout(function() 	{ $.fn.colorbox({
+											fixed: true,
 											width:"<?php echo $options['popup_width']?>px", 
 											height:"<?php echo $options['popup_height']?>px", 
 											iframe:true, 
@@ -318,11 +319,7 @@ function smp_add_js(){
 	global $smp_plugin_url_base;
 	$options = get_option('smp-options'); 
 	wp_enqueue_script('jquery');
-	if ($options['show_backlink'] == 1){
-		wp_enqueue_script('smp_colorbox',	$smp_plugin_url_base . '/jquery.colorbox-min-back.js', array('jquery'), mt_rand() );
-	}else{
-		wp_enqueue_script('smp_colorbox',	$smp_plugin_url_base . '/jquery.colorbox-min.js', array('jquery'), mt_rand() );
-	}
+	wp_enqueue_script('smp_colorbox',	$smp_plugin_url_base . '/jquery.colorbox-min.js', array('jquery'), mt_rand() );
 	wp_enqueue_script('smp_cookie',	$smp_plugin_url_base . '/jquery.utils-min.js',	array('jquery'), mt_rand() );
 }
 
@@ -367,6 +364,7 @@ function smp_add_admin_head_code() {
 				var oc = $("input[name='smp-options[overlay_close]']:checked").val() == 'true';
 				setTimeout(
 					function() { $.fn.colorbox({
+						fixed:true,
 						width:$("input[name='smp-options[popup_width]']").val()+"px", 
 						height:$("input[name='smp-options[popup_height]']").val()+"px", 
 						iframe:true, 
@@ -514,9 +512,10 @@ function smp_settings_page() {
            <input type="radio" <?php echo($options['show_mobile']==0?'checked':'')?> name="smp-options[show_mobile]" value="0">No
            </td>
         </tr>
+        <!-- 
         <tr valign="top"><th scope="row"><strong>Backlink on popup footer:</strong></th>
            <td><input type="checkbox" <?php echo($options['show_backlink']==1?'checked':'')?> name="smp-options[show_backlink]" value="1">Show</td>
-        </tr>
+        </tr>-->
         <tr valign="top"><th scope="row"><strong>Paths inclusion/exclusion</strong>: type the paths (one for each line).</th>
            <td>
         		<input type="radio" <?php echo($options['list_mode']==3?'checked':'')?> name="smp-options[list_mode]" value="3"> Show the popup on all the pages  <br/>
