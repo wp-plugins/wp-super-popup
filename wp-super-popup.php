@@ -304,7 +304,10 @@ function smp_add_styles(){
 function smp_add_js_admin(){
 	global $smp_plugin_url_base;
 	$options = get_option('smp-options'); 
-	wp_enqueue_script('jquery');
+	wp_deregister_script( 'jquery' );
+    wp_register_script( 'jquery', 'http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js');
+    wp_enqueue_script( 'jquery' );
+	
 	if ($options['show_backlink'] == 1){
 		wp_enqueue_script('smp_colorbox',	$smp_plugin_url_base . '/jquery.colorbox-min-back.js', array('jquery'), mt_rand() );
 	}else{
@@ -315,10 +318,13 @@ function smp_add_js_admin(){
 	wp_enqueue_script('smp_admin',	$smp_plugin_url_base . '/admin.js', array('smp_tiny_mce'), mt_rand() );
 }
 
+
 function smp_add_js(){
 	global $smp_plugin_url_base;
 	$options = get_option('smp-options'); 
-	wp_enqueue_script('jquery');
+    wp_deregister_script( 'jquery' );
+    wp_register_script( 'jquery', 'http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js');
+    wp_enqueue_script( 'jquery' );
 	wp_enqueue_script('smp_colorbox',	$smp_plugin_url_base . '/jquery.colorbox-min.js', array('jquery'), mt_rand() );
 	wp_enqueue_script('smp_cookie',	$smp_plugin_url_base . '/jquery.utils-min.js',	array('jquery'), mt_rand() );
 }
@@ -474,7 +480,7 @@ function smp_settings_page() {
 	global $smp_plugin_url_base;
 ?>
 <div class="wrap">
-	<h2>WP Super Popup 0.9.6</h2>
+	<h2>WP Super Popup 0.9.8</h2>
 	<div style="padding-bottom:10px;margin-top:5px;margin-bottom:10px;">
 	by <strong><a target="_blank" href="http://wppluginspro.com">WP Plugins Pro</a></strong>	
 	</div>
@@ -486,7 +492,7 @@ function smp_settings_page() {
 	</div>
 	<div style="float: left; background-color: white; padding: 10px; border: 1px solid rgb(221, 221, 221);">
 	<div style="width: 350px; height: 80px;">
-	<em>Do you want to sell Plimus digital products from your website? <br/>Check now <strong><a href="http://wppluginspro.com/plimus-integrator-for-wordpress/">Plimus Integrator for Wordpress</a>!</strong></em>
+	<em>Do you want to transform your blog into a beautiful and fully customizable <strong>mobile App</strong>? <br/>Check now <strong><a href="http://wpappmaker.com/">WP App Maker</a>!</strong></em>
 	</div>
 	</div>
 	</div>
