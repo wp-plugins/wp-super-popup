@@ -21,6 +21,7 @@ The most powerful features of this plugin regards its competitors are the follow
 
 **A Pro version with full support and additional features (like visitor email auto-load, exit popup and much more) is also available!** 
 Learn more by visiting this page: http://wppluginspro.com/wp-super-popup-pro/
+
 If you need an unblockable popunder (which breaks all the browsers alerts) take a look at **WP Super Popunder Pro**: http://wppluginspro.com/wp-super-popunder-pro/
 
 == Installation ==
