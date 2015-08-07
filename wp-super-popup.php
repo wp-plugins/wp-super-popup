@@ -4,7 +4,7 @@ Plugin Name: WP Super Popup
 Plugin Script: wp-super-popup.php
 Plugin URI: http://wppluginspro.com/wp-super-popup-pro/
 Description: Creates unblockable, dynamic and fully configurable popups for your blog. It works also if WP Super Cache or W3 Total Cache is enabled!
-Version: 1.0
+Version: 1.1
 License: GPL
 Author: WP Plugins Pro
 Author URI: http://wppluginspro.com
@@ -48,13 +48,12 @@ $smp_default_options = array(
 'cookie_id' => 'mycookie',
 'list_mode' => 3,
 'overlay_close' => 'true',
-'show_backlink' => 0,
 'show_mobile' => 0
 );
 
 add_option('smp-options',$smp_default_options);
 
-$smp_plugin_url_base = WP_PLUGIN_URL . '/wp-super-popup';
+$smp_plugin_url_base = plugin_dir_url( __FILE__ );
 
 $smp_uploads_dir = wp_upload_dir();
 $smp_uploads_basedir = $smp_uploads_dir['basedir'];
@@ -194,86 +193,33 @@ function smp_is_page_allowed(){
 function smp_add_head_code(){
 	global $smp_plugin_url_base, $smp_inline_popup_url,$smp_plain_popup_url,$smp_page_popup_url;
 	$options = get_option('smp-options');
-?>
-<script type="text/javascript">
-	jQuery.noConflict();
-	jQuery(document).ready(function($) {
-		$(document).ready(function(){
-			var smp_cookie_name_a = 'smp_<?php echo $options['cookie_id']?>_a';//1
-			var smp_cookie_name_b = 'smp_<?php echo $options['cookie_id']?>_b';//2
-			var smp_cookie_num_visits = <?php echo $options['cookie_num_visits']?>;
-			var smp_show_mode = <?php echo $options['show_mode']?>;
-			function smp_show_popup(){
-				<?php 
-				if ($options['load_mode'] == 1){
-					$smp_popup_url = $options['popup_url'];
-				} else if ($options['load_mode'] == 2){
-					$smp_popup_url = $smp_inline_popup_url;
-				} else if ($options['load_mode'] == 3) {
-					$smp_popup_url = $smp_plain_popup_url;
-				} else {
-					$smp_popup_url = '/?smp_page_content_id=' . $options['page_content_id'];
-				}
-								?>
-				setTimeout(function() 	{ $.fn.colorbox({
-											fixed: true,
-											width:"<?php echo $options['popup_width']?>px", 
-											height:"<?php echo $options['popup_height']?>px", 
-											iframe:true, 
-											opacity:<?php echo $options['popup_opacity']?>, 
-											speed:<?php echo $options['popup_speed']?>, 
-											overlayClose:<?php echo $options['overlay_close']?>, 
-											href:'<?php echo $smp_popup_url?>'}) 
-										}, 
-							<?php echo $options['popup_delay']?>);
-			}
-			function smp_reset_cookies(){
-				c_value_a = $.cookie(smp_cookie_name_a);
-				c_value_b = $.cookie(smp_cookie_name_b);
-				if (smp_show_mode == 1 && c_value_b != null){
-					$.cookie(smp_cookie_name_b, null, { path: '/', expires: 0 });
-					return true;
-				} else if (smp_show_mode == 2 && c_value_a != null){
-					$.cookie(smp_cookie_name_a, null, { path: '/', expires: 0 });
-					return true;
-				} else {
-					return false;
-				}
-			}
-			$(document).ready(function(){
-				var date = new Date();
-				if (!smp_reset_cookies()){
-					c_value_a = $.cookie(smp_cookie_name_a);
-					c_value_b = $.cookie(smp_cookie_name_b);
-					if (smp_show_mode == 1){
-						date.setTime(date.getTime() + (<?php echo $options['cookie_duration']?> * 24 * 60 * 60 * 1000));
-						c_value = c_value_a;
-						smp_cookie_name = smp_cookie_name_a;
-					} else if (smp_show_mode == 2){
-						date.setTime(date.getTime() + (100000 * 24 * 60 * 60 * 1000));
-						c_value = c_value_b;
-						smp_cookie_name = smp_cookie_name_b;
-					}
-					if (c_value == null){	
-				    $.cookie(smp_cookie_name, '0', { path: '/', expires: date });
-						smp_show_popup();
-					} else {
-						//cookie exists
-						if (smp_show_mode == 2){
-							date.setTime(date.getTime() + (100000 * 24 * 60 * 60 * 1000));
-							c_value++;
-							$.cookie(smp_cookie_name, c_value, { path: '/', expires: date });
-							if (c_value < smp_cookie_num_visits){
-								smp_show_popup();
-							}
-						}
-					}
-				}
-			});
-		});
-	});
-</script>
-<?php 
+	if ($options['load_mode'] == 1){
+		$smp_popup_url = $options['popup_url'];
+	} else if ($options['load_mode'] == 2){
+		$smp_popup_url = $smp_inline_popup_url;
+	} else if ($options['load_mode'] == 3) {
+		$smp_popup_url = $smp_plain_popup_url;
+	} else {
+		$smp_popup_url = '/?smp_page_content_id=' . $options['page_content_id'];
+	}
+	wp_enqueue_script( 'smp-script', plugin_dir_url( __FILE__ ) . '/wp-super-popup.js', array( 'jquery' ), rand(), true );
+	wp_localize_script( 'smp-script', 'smp_vars', array(
+	'cookie_id' => $options['cookie_id'],
+	'cookie_num_visits' => $options['cookie_num_visits'],
+	'show_mode' => $options['show_mode'],
+	'popup_url' => $options['popup_url'],
+	'load_mode' => $options['load_mode'],
+	'page_content_id' => $options['page_content_id'],
+	'popup_width' => $options['popup_width'],
+	'popup_height' => $options['popup_height'],
+	'popup_opacity' => $options['popup_opacity'],
+	'popup_speed' => $options['popup_speed'],
+	'overlay_close' => $options['overlay_close'],
+	'popup_url' => $smp_popup_url,
+	'popup_delay' => $options['popup_delay'],
+	'cookie_duration' => $options['cookie_duration'],
+	'ajaxurl' 	=> admin_url( 'admin-ajax.php' )
+	));
 }
 
 
@@ -304,15 +250,9 @@ function smp_add_styles(){
 function smp_add_js_admin(){
 	global $smp_plugin_url_base;
 	$options = get_option('smp-options'); 
-	wp_deregister_script( 'jquery' );
-    wp_register_script( 'jquery', 'http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js');
     wp_enqueue_script( 'jquery' );
 	
-	if ($options['show_backlink'] == 1){
-		wp_enqueue_script('smp_colorbox',	$smp_plugin_url_base . '/jquery.colorbox-min-back.js', array('jquery'), mt_rand() );
-	}else{
-		wp_enqueue_script('smp_colorbox',	$smp_plugin_url_base . '/jquery.colorbox-min.js', array('jquery'), mt_rand() );
-	}
+	wp_enqueue_script('smp_colorbox',	$smp_plugin_url_base . '/jquery.colorbox-min.js', array('jquery'), mt_rand() );
 	wp_enqueue_script('smp_cookie',	$smp_plugin_url_base . '/jquery.utils-min.js',	array('jquery'), mt_rand() );
 	wp_enqueue_script('smp_tiny_mce',	$smp_plugin_url_base . '/tiny_mce/tiny_mce.js',	array(), mt_rand() );
 	wp_enqueue_script('smp_admin',	$smp_plugin_url_base . '/admin.js', array('smp_tiny_mce'), mt_rand() );
@@ -322,8 +262,8 @@ function smp_add_js_admin(){
 function smp_add_js(){
 	global $smp_plugin_url_base;
 	$options = get_option('smp-options'); 
-    wp_deregister_script( 'jquery' );
-    wp_register_script( 'jquery', 'http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js');
+    //wp_deregister_script( 'jquery' );
+    //wp_register_script( 'jquery', 'http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js');
     wp_enqueue_script( 'jquery' );
 	wp_enqueue_script('smp_colorbox',	$smp_plugin_url_base . '/jquery.colorbox-min.js', array('jquery'), mt_rand() );
 	wp_enqueue_script('smp_cookie',	$smp_plugin_url_base . '/jquery.utils-min.js',	array('jquery'), mt_rand() );
@@ -369,7 +309,7 @@ function smp_add_admin_head_code() {
 				
 				var oc = $("input[name='smp-options[overlay_close]']:checked").val() == 'true';
 				setTimeout(
-					function() { $.fn.colorbox({
+					function() { $.colorbox({
 						fixed:true,
 						width:$("input[name='smp-options[popup_width]']").val()+"px", 
 						height:$("input[name='smp-options[popup_height]']").val()+"px", 
@@ -484,6 +424,7 @@ function smp_settings_page() {
 	<div style="padding-bottom:10px;margin-top:5px;margin-bottom:10px;">
 	by <strong><a target="_blank" href="http://wppluginspro.com">WP Plugins Pro</a></strong>	
 	</div>
+		<!-- 
 	<div style="width: 832px;">
 	<div style="float: left; background-color: white; padding: 10px; margin-right: 15px; border: 1px solid rgb(221, 221, 221);">
 	<div style="width: 350px; height: 80px;">
@@ -496,6 +437,7 @@ function smp_settings_page() {
 	</div>
 	</div>
 	</div>
+	 -->
 	<div style="clear:both;"></div>
   <?php      
   if (strlen($options['messages']) > 0){
