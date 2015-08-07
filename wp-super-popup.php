@@ -420,7 +420,7 @@ function smp_settings_page() {
 	global $smp_plugin_url_base;
 ?>
 <div class="wrap">
-	<h2>WP Super Popup 1.0</h2>
+	<h2>WP Super Popup</h2>
 	<div style="padding-bottom:10px;margin-top:5px;margin-bottom:10px;">
 	by <strong><a target="_blank" href="http://wppluginspro.com">WP Plugins Pro</a></strong>	
 	</div>
