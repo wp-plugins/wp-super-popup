@@ -1,8 +1,8 @@
 === WP Super Popup ===
 Tags: popup, modal popup, window, viral popup, super popup
-Requires at least: 2.7
-Tested up to: 3.3.1
-Stable tag: 1.0
+Requires at least: 3.6
+Tested up to: 4.2.4
+Stable tag: 1.1
 
 Creates unblockable, dynamic and fully configurable popups for your blog. It works also if WP Super Cache or W3 Total Cache is enabled!
 
@@ -30,6 +30,9 @@ If you need an unblockable popunder (which breaks all the browsers alerts) take 
 3. Go to the 'Super Popup' admin page in order to edit and enable your popup
 
 == Changelog ==
+
+= 1.1 =
+New mayor release wich fix a lot of issues related to the recent Wordpress releases
 
 = 1.0 =
 Upgraded mobile User Agents strings list
